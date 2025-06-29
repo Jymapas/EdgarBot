@@ -4,23 +4,12 @@ using Telegram.Bot.Types;
 
 namespace EdgarBot.Application.Services;
 
-public class ForwardingService : IForwardingService
+public class ForwardingService(IMessageSender messageSender, IMappingStore mappingStore, long adminChatId) : IForwardingService
 {
-    private readonly long _adminChatId;
-    private readonly IMappingStore _mappingStore;
-    private readonly IMessageSender _sender;
-
-    public ForwardingService(IMessageSender messageSender, IMappingStore mappingStore, long adminChatId)
-    {
-        _sender = messageSender;
-        _mappingStore = mappingStore;
-        _adminChatId = adminChatId;
-    }
-
     public async Task HandleUserMessageAsync(Message userMessage, CancellationToken cancellationToken = default)
     {
-        var adminMessageId = await _sender.ForwardMessageAsync(
-            _adminChatId,
+        var adminMessageId = await messageSender.ForwardMessageAsync(
+            adminChatId,
             userMessage.Chat.Id,
             userMessage.MessageId,
             cancellationToken);
@@ -32,6 +21,6 @@ public class ForwardingService : IForwardingService
             UserMessageId = userMessage.MessageId,
         };
 
-        _mappingStore.Add(adminMessageId, mapping);
+        mappingStore.Add(adminMessageId, mapping);
     }
 }
