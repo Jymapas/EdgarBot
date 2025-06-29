@@ -1,4 +1,5 @@
 ﻿using EdgarBot.Application.Interfaces;
+using EdgarBot.Application.Models;
 using Telegram.Bot.Types;
 
 namespace EdgarBot.Application.Services;
@@ -16,8 +17,21 @@ public class ForwardingService : IForwardingService
         _adminChatId = adminChatId;
     }
 
-    public Task HandleUserMessageAsync(Message userMessage, CancellationToken cancellationToken = default)
+    public async Task HandleUserMessageAsync(Message userMessage, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var adminMessageId = await _sender.ForwardMessageAsync(
+            _adminChatId,
+            userMessage.Chat.Id,
+            userMessage.MessageId,
+            cancellationToken);
+
+        var mapping = new ForwardedMessageInfo
+        {
+            AdminMessageId = adminMessageId,
+            UserId = userMessage.From.Id,
+            UserMessageId = userMessage.MessageId,
+        };
+
+        _mappingStore.Add(adminMessageId, mapping);
     }
 }
