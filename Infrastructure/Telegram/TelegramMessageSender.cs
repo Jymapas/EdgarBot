@@ -40,4 +40,15 @@ public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSende
 
         return msg.MessageId;
     }
+
+    public async Task<int> SendPhotoAsync(long chatId, string fileId, string? caption, CancellationToken cancellationToken = default)
+    {
+        var msg = await botClient.SendPhoto(
+            chatId,
+            fileId,
+            caption,
+            cancellationToken: cancellationToken);
+
+        return msg.MessageId;
+    }
 }
