@@ -49,12 +49,12 @@ var botClient = host.Services.GetRequiredService<ITelegramBotClient>();
 var updateHandler = host.Services.GetRequiredService<EdgarUpdateHandler>();
 
 using var cts = new CancellationTokenSource();
+var cancellationToken = cts.Token;
 
 botClient.StartReceiving(
     updateHandler,
     null,
-    cts.Token);
+    cancellationToken);
 
 Console.WriteLine("Press any key to exit");
-Console.ReadKey();
-cts.Cancel();
+await Task.Delay(Timeout.Infinite, cancellationToken);
