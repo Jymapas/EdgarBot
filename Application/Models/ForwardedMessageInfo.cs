@@ -1,11 +1,10 @@
-namespace EdgarBot.Application.Models
+namespace EdgarBot.Application.Models;
+
+public class ForwardedMessageInfo
 {
-    public class ForwardedMessageInfo
-    {
-        public int AdminMessageId { get; set; }
+    public int AdminMessageId { get; set; }
 
-        public long UserId { get; set; }
+    public long UserId { get; set; }
 
-        public int UserMessageId { get; set; }
-    }
+    public int UserMessageId { get; set; }
 }
