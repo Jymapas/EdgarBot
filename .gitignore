@@ -53,6 +53,9 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-#IDEs
+# IDEs
 .idea
 .vs
+
+# Settings files
+appsettings.json
