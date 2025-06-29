@@ -5,18 +5,11 @@ using Telegram.Bot.Types.Enums;
 
 namespace EdgarBot.Infrastructure.Telegram;
 
-public class TelegramMessageSender : IMessageSender
+public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSender
 {
-    private readonly ITelegramBotClient _botClient;
-
-    public TelegramMessageSender(ITelegramBotClient botClient)
-    {
-        _botClient = botClient;
-    }
-
     public async Task<int> SendTextMessageAsync(long chatId, string text, ReplyParameters? replyParameters = null, CancellationToken cancellationToken = default)
     {
-        var msg = await _botClient.SendMessage(
+        var msg = await botClient.SendMessage(
             chatId,
             text,
             replyParameters: replyParameters,
@@ -28,7 +21,7 @@ public class TelegramMessageSender : IMessageSender
 
     public async Task<int> CopyMessageAsync(long toChatId, long fromChatId, int messageId, CancellationToken cancellationToken = default)
     {
-        var msg = await _botClient.CopyMessage(
+        var msg = await botClient.CopyMessage(
             toChatId,
             fromChatId,
             messageId,
