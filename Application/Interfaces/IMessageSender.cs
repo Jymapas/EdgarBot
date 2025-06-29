@@ -15,4 +15,11 @@ public interface IMessageSender
         long fromChatId,
         int messageId,
         CancellationToken cancellationToken = default);
+    
+    Task<int> ForwardMessageAsync(
+        long toChatId,
+        long fromChatId,
+        int messageId,
+        CancellationToken cancellationToken = default);
+
 }
