@@ -29,4 +29,15 @@ public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSende
 
         return msg;
     }
+
+    public async Task<int> ForwardMessageAsync(long toChatId, long fromChatId, int messageId, CancellationToken cancellationToken = default)
+    {
+        var msg = await botClient.ForwardMessage(
+            toChatId,
+            fromChatId,
+            messageId,
+            cancellationToken: cancellationToken);
+
+        return msg.MessageId;
+    }
 }
