@@ -1,7 +1,8 @@
-﻿using EdgarBot.Presentation;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+
+namespace EdgarBot.Presentation.Telegram;
 
 public class EdgarUpdateHandler(UpdateHandler handler) : IUpdateHandler
 {

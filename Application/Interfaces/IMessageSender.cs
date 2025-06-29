@@ -27,5 +27,4 @@ public interface IMessageSender
         long fromChatId,
         int messageId,
         CancellationToken cancellationToken = default);
-
 }
