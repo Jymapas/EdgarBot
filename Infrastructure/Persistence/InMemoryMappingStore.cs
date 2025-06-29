@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using EdgarBot.Application.Interfaces;
 using EdgarBot.Application.Models;
 
@@ -5,18 +6,20 @@ namespace EdgarBot.Infrastructure.Persistence;
 
 public class InMemoryMappingStore : IMappingStore
 {
+    private readonly ConcurrentDictionary<int, ForwardedMessageInfo> _mapping = new();
+
     public void Add(int adminMessageId, ForwardedMessageInfo info)
     {
-        throw new NotImplementedException();
+        _mapping[adminMessageId] = info;
     }
 
     public void Remove(int adminMessageId)
     {
-        throw new NotImplementedException();
+        _mapping.TryRemove(adminMessageId, out _);
     }
 
     public bool TryGet(int adminMessageId, out ForwardedMessageInfo info)
     {
-        throw new NotImplementedException();
+        return _mapping.TryGetValue(adminMessageId, out info);
     }
 }
