@@ -9,6 +9,7 @@ public interface IMessageSender
         string text,
         ReplyParameters? replyParameters = null,
         CancellationToken cancellationToken = default);
+
     Task<int> CopyMessageAsync(
         long toChatId,
         long fromChatId,

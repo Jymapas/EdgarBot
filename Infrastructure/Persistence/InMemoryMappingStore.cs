@@ -1,6 +1,6 @@
-using System.Collections.Concurrent;
 using EdgarBot.Application.Interfaces;
 using EdgarBot.Application.Models;
+using System.Collections.Concurrent;
 
 namespace EdgarBot.Infrastructure.Persistence;
 

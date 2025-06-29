@@ -1,8 +1,10 @@
-﻿namespace EdgarBot.Application.Interfaces;
+﻿using Telegram.Bot.Types;
+
+namespace EdgarBot.Application.Interfaces;
 
 public interface IForwardingService
 {
     Task HandleUserMessageAsync(
-        Telegram.Bot.Types.Message userMessage,
+        Message userMessage,
         CancellationToken cancellationToken = default);
 }

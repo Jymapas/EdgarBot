@@ -17,8 +17,8 @@ public class TelegramMessageSender : IMessageSender
     public async Task<int> SendTextMessageAsync(long chatId, string text, ReplyParameters? replyParameters = null, CancellationToken cancellationToken = default)
     {
         var msg = await _botClient.SendMessage(
-            chatId: chatId,
-            text: text,
+            chatId,
+            text,
             replyParameters: replyParameters,
             parseMode: ParseMode.Markdown,
             cancellationToken: cancellationToken);
@@ -29,9 +29,9 @@ public class TelegramMessageSender : IMessageSender
     public async Task<int> CopyMessageAsync(long toChatId, long fromChatId, int messageId, CancellationToken cancellationToken = default)
     {
         var msg = await _botClient.CopyMessage(
-            chatId: toChatId,
-            fromChatId: fromChatId,
-            messageId: messageId,
+            toChatId,
+            fromChatId,
+            messageId,
             cancellationToken: cancellationToken);
 
         return msg;
