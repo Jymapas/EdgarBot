@@ -56,5 +56,5 @@ botClient.StartReceiving(
     null,
     cancellationToken);
 
-Console.WriteLine("Press any key to exit");
+Console.WriteLine("EdgarBot started.");
 await Task.Delay(Timeout.Infinite, cancellationToken);
