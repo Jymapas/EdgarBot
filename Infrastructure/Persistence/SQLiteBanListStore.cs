@@ -29,7 +29,13 @@ public class SQLiteBanListStore : IBanListStore
     }
     public void Ban(long userId, string name)
     {
-        throw new NotImplementedException();
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "INSERT OR REPLACE INTO BannedUsers (UserId, Name) VALUES (@id, @name);";
+        command.Parameters.AddWithValue("@id", userId);
+        command.Parameters.AddWithValue("@name", name ?? string.Empty);
+        command.ExecuteNonQuery();
     }
     public void Unban(long userId)
     {
