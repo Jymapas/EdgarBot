@@ -58,6 +58,18 @@ public class SQLiteBanListStore : IBanListStore
     }
     public IEnumerable<BannedUserInfo> GetBannedUsers()
     {
-        throw new NotImplementedException();
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT UserId, Name FROM BannedUsers;";
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            yield return new BannedUserInfo
+            {
+                UserId = reader.GetInt64(0),
+                Name = reader.GetString(1)
+            };
+        }
     }
 }
