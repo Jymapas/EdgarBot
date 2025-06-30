@@ -33,16 +33,19 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
+        services.AddSingleton<IBanListStore>(
+            sp => new SQLiteBanListStore("/app/banned_users.db"));
         services.AddSingleton<UpdateHandler>(sp =>
         {
             var forwarding = sp.GetRequiredService<IForwardingService>();
             var adminReply = sp.GetRequiredService<IAdminReplyHandler>();
+            var banList = sp.GetRequiredService<IBanListStore>();
+            var sendMessageService = sp.GetRequiredService<ISendMessageService>();
+            var mappingStore = sp.GetRequiredService<IMappingStore>();
             var options = telegramSection.Get<TelegramOptions>();
-            return new UpdateHandler(forwarding, adminReply, options.AdminChatId);
+            return new UpdateHandler(forwarding, adminReply, banList, sendMessageService, mappingStore, options.AdminChatId);
         });
         services.AddSingleton<EdgarUpdateHandler>();
-        services.AddSingleton<IBanListStore>(
-            sp => new SQLiteBanListStore("/app/banned_users.db"));
     });
 
 var host = builder.Build();
