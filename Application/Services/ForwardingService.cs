@@ -14,10 +14,14 @@ public class ForwardingService(IMessageSender messageSender, IMappingStore mappi
             userMessage.MessageId,
             cancellationToken);
 
+        var user = userMessage.From;
+        var userName = $"{user.FirstName} {user.LastName}".Trim();
+
         var mapping = new ForwardedMessageInfo
         {
             AdminMessageId = adminMessageId,
-            UserId = userMessage.From.Id,
+            UserId = user.Id,
+            UserName = userName,
             UserMessageId = userMessage.MessageId,
         };
 
