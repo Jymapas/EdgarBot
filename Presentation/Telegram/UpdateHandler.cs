@@ -1,15 +1,15 @@
 ﻿using EdgarBot.Application.Interfaces;
-using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace EdgarBot.Presentation.Telegram;
 
 public class UpdateHandler(
-    IForwardingService forwardingService, 
+    IForwardingService forwardingService,
     IAdminReplyHandler adminReplyHandler,
     IBanListStore banListStore,
     ISendMessageService sendMessageService,
+    IMappingStore mappingStore,
     long adminChatId)
 {
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken = default)
@@ -19,10 +19,10 @@ public class UpdateHandler(
             return;
         }
 
-        var msg = update.Message;
-        var user = msg.From;
+        var message = update.Message;
+        var user = message.From;
 
-        if (msg.Chat.Type == ChatType.Private)
+        if (message.Chat.Type == ChatType.Private)
         {
             if (user.IsBot)
             {
@@ -35,13 +35,38 @@ public class UpdateHandler(
                 return;
             }
 
-            await forwardingService.HandleUserMessageAsync(msg, cancellationToken);
+            await forwardingService.HandleUserMessageAsync(message, cancellationToken);
             return;
         }
 
-        if (msg.Chat.Id == adminChatId && msg.ReplyToMessage != null)
+        if (message.Chat.Id == adminChatId && message.ReplyToMessage != null)
         {
-            await adminReplyHandler.HandleAdminReplyAsync(msg, cancellationToken);
+            var messageText = string.IsNullOrWhiteSpace(message.Text) ? null : message.Text.Trim();
+            if (messageText is not null && (messageText == "/ban" || messageText == "/unban"))
+            {
+                if (mappingStore.TryGet(message.ReplyToMessage.MessageId, out var mapping))
+                {
+                    var userId = mapping.UserId;
+                    var userName = mapping.UserName ?? userId.ToString();
+
+                    if (messageText == "/ban")
+                    {
+                        banListStore.Ban(userId, userName);
+                        await sendMessageService.SendMessageAsync(message.Chat.Id, $"Пользователь {userName} забанен.", cancellationToken);
+                    }
+                    else
+                    {
+                        banListStore.Unban(userId);
+                        await sendMessageService.SendMessageAsync(message.Chat.Id, $"Пользователь {userName} разбанен.", cancellationToken);
+                    }
+                }
+                else
+                {
+                    await sendMessageService.SendMessageAsync(message.Chat.Id, "Не удалось определить пользователя для бана/разбана.", cancellationToken);
+                }
+                return;
+            }
+            await adminReplyHandler.HandleAdminReplyAsync(message, cancellationToken);
         }
     }
 }
