@@ -41,6 +41,8 @@ var builder = Host.CreateDefaultBuilder(args)
             return new UpdateHandler(forwarding, adminReply, options.AdminChatId);
         });
         services.AddSingleton<EdgarUpdateHandler>();
+        services.AddSingleton<IBanListStore>(
+            sp => new SQLiteBanListStore("/app/banned_users.db"));
     });
 
 var host = builder.Build();
