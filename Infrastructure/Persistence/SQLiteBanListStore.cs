@@ -6,6 +6,27 @@ namespace EdgarBot.Infrastructure.Persistence;
 
 public class SQLiteBanListStore : IBanListStore
 {
+    private readonly string _connectionString;
+
+    public SQLiteBanListStore(string dbPath)
+    {
+        _connectionString = $"Data Source={dbPath}";
+        EnsureTable();
+    }
+
+    private void EnsureTable()
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+                              CREATE TABLE IF NOT EXISTS BannedUsers (
+                                  UserId INTEGER PRIMARY KEY,
+                                  Name TEXT
+                              );
+                              """;
+        command.ExecuteNonQuery();
+    }
     public void Ban(long userId, string name)
     {
         throw new NotImplementedException();
