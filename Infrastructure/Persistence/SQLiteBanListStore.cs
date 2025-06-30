@@ -39,7 +39,12 @@ public class SQLiteBanListStore : IBanListStore
     }
     public void Unban(long userId)
     {
-        throw new NotImplementedException();
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "DELETE FROM BannedUsers WHERE UserId = @id;";
+        command.Parameters.AddWithValue("@id", userId);
+        command.ExecuteNonQuery();
     }
     public bool IsBanned(long userId)
     {
