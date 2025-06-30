@@ -7,12 +7,11 @@ namespace EdgarBot.Infrastructure.Telegram;
 
 public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSender
 {
-    public async Task<int> SendTextMessageAsync(long chatId, string text, ReplyParameters? replyParameters = null, CancellationToken cancellationToken = default)
+    public async Task<int> SendTextMessageAsync(long chatId, string text, CancellationToken cancellationToken = default)
     {
         var msg = await botClient.SendMessage(
             chatId,
             text,
-            replyParameters: replyParameters,
             parseMode: ParseMode.Markdown,
             cancellationToken: cancellationToken);
 
