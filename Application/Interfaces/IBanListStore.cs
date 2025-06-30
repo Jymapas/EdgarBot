@@ -1,9 +1,11 @@
-﻿namespace EdgarBot.Application.Interfaces;
+﻿using EdgarBot.Application.Models;
+
+namespace EdgarBot.Application.Interfaces;
 
 public interface IBanListStore
 {
-    void Ban(long userId);
+    void Ban(long userId, string name);
     void Unban(long userId);
     bool IsBanned(long userId);
-    IEnumerable<long> GetBannedUsers();
+    IEnumerable<BannedUserInfo> GetBannedUsers();
 }
