@@ -1,6 +1,5 @@
 ﻿using EdgarBot.Application.Interfaces;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace EdgarBot.Infrastructure.Telegram;
@@ -12,7 +11,7 @@ public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSende
         var msg = await botClient.SendMessage(
             chatId,
             text,
-            parseMode: ParseMode.Markdown,
+            ParseMode.Markdown,
             cancellationToken: cancellationToken);
 
         return msg.MessageId;
