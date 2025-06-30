@@ -1,10 +1,16 @@
 ﻿using EdgarBot.Application.Interfaces;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace EdgarBot.Presentation.Telegram;
 
-public class UpdateHandler(IForwardingService forwardingService, IAdminReplyHandler adminReplyHandler, long adminChatId)
+public class UpdateHandler(
+    IForwardingService forwardingService, 
+    IAdminReplyHandler adminReplyHandler,
+    IBanListStore banListStore,
+    ISendMessageService sendMessageService,
+    long adminChatId)
 {
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken = default)
     {
@@ -14,11 +20,18 @@ public class UpdateHandler(IForwardingService forwardingService, IAdminReplyHand
         }
 
         var msg = update.Message;
+        var user = msg.From;
 
         if (msg.Chat.Type == ChatType.Private)
         {
-            if (msg.From?.IsBot == true)
+            if (user.IsBot)
             {
+                return;
+            }
+
+            if (banListStore.IsBanned(user.Id))
+            {
+                await sendMessageService.SendBannedInfoAsync(user.Id, cancellationToken);
                 return;
             }
 
