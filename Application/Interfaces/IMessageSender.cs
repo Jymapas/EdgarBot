@@ -10,12 +10,6 @@ public interface IMessageSender
         ReplyParameters? replyParameters = null,
         CancellationToken cancellationToken = default);
 
-    Task<int> SendPhotoAsync(
-        long chatId,
-        string fileId,
-        string? caption,
-        CancellationToken cancellationToken = default);
-
     Task<int> CopyMessageAsync(
         long toChatId,
         long fromChatId,
