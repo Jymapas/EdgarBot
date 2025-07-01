@@ -38,12 +38,14 @@ public class UpdateHandler(
             await forwardingService.HandleUserMessageAsync(message, cancellationToken);
             return;
         }
-        
+
         var chatId = message.Chat.Id;
 
         if (chatId == adminChatId && message.ReplyToMessage != null)
         {
-            var messageText = string.IsNullOrWhiteSpace(message.Text) ? null : message.Text.Trim();
+            var messageText = string.IsNullOrWhiteSpace(message.Text)
+                ? null
+                : message.Text.Trim();
             if (messageText is not null && (messageText == "/ban" || messageText == "/unban"))
             {
                 if (mappingStore.TryGet(message.ReplyToMessage.MessageId, out var mapping))

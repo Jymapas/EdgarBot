@@ -34,7 +34,7 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
-        
+
         var banListSection = config.GetSection("BanList");
         services.Configure<BanListOptions>(banListSection);
         services.AddSingleton<IBanListStore>(sp =>
