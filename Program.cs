@@ -37,7 +37,6 @@ var builder = Host.CreateDefaultBuilder(args)
             return new SQLiteBanListStore(options.DbPath);
         });
 
-        services.AddSingleton<IMappingStore, InMemoryMappingStore>();
         services.AddSingleton<IMessageSender, TelegramMessageSender>();
         services.AddSingleton<ISendMessageService, SendMessageService>();
         services.AddSingleton<IForwardingService, ForwardingService>(sp =>
