@@ -34,7 +34,26 @@ public class SQLiteMappingStore : IMappingStore
 
     public bool TryGet(int adminMessageId, out ForwardedMessageInfo info)
     {
-        throw new NotImplementedException();
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT UserId, UserName, UserMessageId, ForwardedAt FROM ForwardedMessages WHERE AdminMessageId = @id;";
+        command.Parameters.AddWithValue("@id", adminMessageId);
+        using var reader = command.ExecuteReader();
+        if (reader.Read())
+        {
+            info = new ForwardedMessageInfo
+            {
+                AdminMessageId = adminMessageId,
+                UserId = reader.GetInt64(0),
+                UserName = reader.GetString(1),
+                UserMessageId = reader.GetInt32(2),
+                ForwardedAt = DateTime.TryParse(reader.GetString(3), out var dt) ? dt : DateTime.UtcNow
+            };
+            return true;
+        }
+        info = null;
+        return false;
     }
 
     public void Remove(int adminMessageId)
