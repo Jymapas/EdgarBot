@@ -25,6 +25,7 @@ var builder = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IMappingStore, InMemoryMappingStore>();
         services.AddSingleton<IMessageSender, TelegramMessageSender>();
+        services.AddSingleton<ISendMessageService, SendMessageService>();
         services.AddSingleton<IForwardingService, ForwardingService>(sp =>
         {
             var sender = sp.GetRequiredService<IMessageSender>();
@@ -33,8 +34,14 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
-        services.AddSingleton<IBanListStore>(
-            sp => new SQLiteBanListStore("/app/banned_users.db"));
+        
+        var banListSection = config.GetSection("BanList");
+        services.Configure<BanListOptions>(banListSection);
+        services.AddSingleton<IBanListStore>(sp =>
+        {
+            var options = banListSection.Get<BanListOptions>();
+            return new SQLiteBanListStore(options.DbPath);
+        });
         services.AddSingleton<UpdateHandler>(sp =>
         {
             var forwarding = sp.GetRequiredService<IForwardingService>();
