@@ -23,7 +23,7 @@ public class ForwardingService(IMessageSender messageSender, IMappingStore mappi
             UserId = user.Id,
             UserName = userName,
             UserMessageId = userMessage.MessageId,
-            ForwardedAt = DateTime.UtcNow
+            ForwardedAt = DateTime.UtcNow,
         };
 
         mappingStore.Add(adminMessageId, mapping);
