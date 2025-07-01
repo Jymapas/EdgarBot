@@ -15,12 +15,26 @@ var builder = Host.CreateDefaultBuilder(args)
     {
         var config = context.Configuration;
         var telegramSection = config.GetSection("Telegram");
+        var banListSection = config.GetSection("BanList");
         services.Configure<TelegramOptions>(telegramSection);
+        services.Configure<BanListOptions>(banListSection);
 
         services.AddSingleton<ITelegramBotClient>(sp =>
         {
             var options = telegramSection.Get<TelegramOptions>();
             return new TelegramBotClient(options.BotToken);
+        });
+
+        services.AddSingleton<IMappingStore>(sp =>
+        {
+            var options = banListSection.Get<BanListOptions>();
+            return new SQLiteMappingStore(options.DbPath);
+        });
+
+        services.AddSingleton<IBanListStore>(sp =>
+        {
+            var options = banListSection.Get<BanListOptions>();
+            return new SQLiteBanListStore(options.DbPath);
         });
 
         services.AddSingleton<IMappingStore, InMemoryMappingStore>();
@@ -34,14 +48,6 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
-
-        var banListSection = config.GetSection("BanList");
-        services.Configure<BanListOptions>(banListSection);
-        services.AddSingleton<IBanListStore>(sp =>
-        {
-            var options = banListSection.Get<BanListOptions>();
-            return new SQLiteBanListStore(options.DbPath);
-        });
         services.AddSingleton<UpdateHandler>(sp =>
         {
             var forwarding = sp.GetRequiredService<IForwardingService>();
