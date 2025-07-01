@@ -16,7 +16,20 @@ public class SQLiteMappingStore : IMappingStore
 
     public void Add(int adminMessageId, ForwardedMessageInfo info)
     {
-        throw new NotImplementedException();
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+                                INSERT OR REPLACE INTO ForwardedMessages
+                                     (AdminMessageId, UserId, UserName, UserMessageId, ForwardedAt)
+                                VALUES (@adminMsgId, @userId, @userName, @userMsgId, @fwdAt);
+                              """;
+        command.Parameters.AddWithValue("@adminMsgId", adminMessageId);
+        command.Parameters.AddWithValue("@userId", info.UserId);
+        command.Parameters.AddWithValue("@userName", info.UserName ?? string.Empty);
+        command.Parameters.AddWithValue("@userMsgId", info.UserMessageId);
+        command.Parameters.AddWithValue("@fwdAt", info.ForwardedAt.ToString("o"));
+        command.ExecuteNonQuery();
     }
 
     public bool TryGet(int adminMessageId, out ForwardedMessageInfo info)
