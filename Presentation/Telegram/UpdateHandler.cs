@@ -38,8 +38,10 @@ public class UpdateHandler(
             await forwardingService.HandleUserMessageAsync(message, cancellationToken);
             return;
         }
+        
+        var chatId = message.Chat.Id;
 
-        if (message.Chat.Id == adminChatId && message.ReplyToMessage != null)
+        if (chatId == adminChatId && message.ReplyToMessage != null)
         {
             var messageText = string.IsNullOrWhiteSpace(message.Text) ? null : message.Text.Trim();
             if (messageText is not null && (messageText == "/ban" || messageText == "/unban"))
@@ -52,17 +54,17 @@ public class UpdateHandler(
                     if (messageText == "/ban")
                     {
                         banListStore.Ban(userId, userName);
-                        await sendMessageService.SendMessageAsync(message.Chat.Id, $"Пользователь {userName} забанен.", cancellationToken);
+                        await sendMessageService.SendMessageAsync(chatId, $"Пользователь {userName} забанен.", cancellationToken);
                     }
-                    else
+                    else // "/unban"
                     {
                         banListStore.Unban(userId);
-                        await sendMessageService.SendMessageAsync(message.Chat.Id, $"Пользователь {userName} разбанен.", cancellationToken);
+                        await sendMessageService.SendMessageAsync(chatId, $"Пользователь {userName} разбанен.", cancellationToken);
                     }
                 }
                 else
                 {
-                    await sendMessageService.SendMessageAsync(message.Chat.Id, "Не удалось определить пользователя для бана/разбана.", cancellationToken);
+                    await sendMessageService.SendMessageAsync(chatId, "Не удалось определить пользователя для бана/разбана.", cancellationToken);
                 }
                 return;
             }
