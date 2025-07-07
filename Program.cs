@@ -1,4 +1,5 @@
-﻿using EdgarBot.Application.Interfaces;
+﻿using EdgarBot.Application.CommandHandlers;
+using EdgarBot.Application.Interfaces;
 using EdgarBot.Application.Models;
 using EdgarBot.Application.Services;
 using EdgarBot.Infrastructure.Persistence;
@@ -7,6 +8,7 @@ using EdgarBot.Presentation.Telegram;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 
 var builder = Host.CreateDefaultBuilder(args)
@@ -47,15 +49,31 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
+        services.AddSingleton<ICommandHandler>(sp =>
+            new BanCommandHandler(
+                sp.GetRequiredService<IBanListStore>(),
+                sp.GetRequiredService<ISendMessageService>(),
+                sp.GetRequiredService<IMappingStore>(),
+                sp.GetRequiredService<IOptions<TelegramOptions>>().Value.AdminChatId
+            ));
+
+        services.AddSingleton<ICommandHandler>(sp =>
+            new UnbanCommandHandler(
+                sp.GetRequiredService<IBanListStore>(),
+                sp.GetRequiredService<ISendMessageService>(),
+                sp.GetRequiredService<IMappingStore>(),
+                sp.GetRequiredService<IOptions<TelegramOptions>>().Value.AdminChatId
+            ));
+
         services.AddSingleton<UpdateHandler>(sp =>
         {
+            var handlers = sp.GetRequiredService<IEnumerable<ICommandHandler>>();
             var forwarding = sp.GetRequiredService<IForwardingService>();
             var adminReply = sp.GetRequiredService<IAdminReplyHandler>();
             var banList = sp.GetRequiredService<IBanListStore>();
             var sendMessageService = sp.GetRequiredService<ISendMessageService>();
-            var mappingStore = sp.GetRequiredService<IMappingStore>();
             var options = telegramSection.Get<TelegramOptions>();
-            return new UpdateHandler(forwarding, adminReply, banList, sendMessageService, mappingStore, options.AdminChatId);
+            return new UpdateHandler(handlers, forwarding, adminReply, banList, sendMessageService, options.AdminChatId);
         });
         services.AddSingleton<EdgarUpdateHandler>();
     });
