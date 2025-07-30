@@ -10,7 +10,7 @@ public class BanCommandHandler(IBanListStore banListStore, ISendMessageService s
         var text = message.Text?.Trim();
         if (message.Chat.Id != adminChatId 
             || !(text.Equals("/ban", StringComparison.InvariantCultureIgnoreCase) 
-                 || text.StartsWith("/unban", StringComparison.InvariantCultureIgnoreCase)) 
+                 || text.StartsWith("/ban@", StringComparison.InvariantCultureIgnoreCase)) 
             || message.ReplyToMessage == null)
         {
             return false;
