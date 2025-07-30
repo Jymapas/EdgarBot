@@ -7,7 +7,11 @@ public class UnbanCommandHandler(IBanListStore banListStore, ISendMessageService
 {
     public async Task<bool> TryHandleAsync(Message message, CancellationToken cancellationToken)
     {
-        if (message.Chat.Id != adminChatId || message.Text?.Trim() != "/unban" || message.ReplyToMessage == null)
+        var text = message.Text?.Trim();
+        if (message.Chat.Id != adminChatId 
+            || !(text.Equals("/unban", StringComparison.InvariantCultureIgnoreCase) 
+                 || text.StartsWith("/unban@", StringComparison.InvariantCultureIgnoreCase)) 
+            || message.ReplyToMessage == null)
         {
             return false;
         }
