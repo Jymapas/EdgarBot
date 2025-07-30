@@ -1,4 +1,5 @@
-﻿using EdgarBot.Application.Interfaces;
+﻿using EdgarBot.Application.Helpers;
+using EdgarBot.Application.Interfaces;
 using Telegram.Bot.Types;
 
 namespace EdgarBot.Application.CommandHandlers;
@@ -9,8 +10,7 @@ public class UnbanCommandHandler(IBanListStore banListStore, ISendMessageService
     {
         var text = message.Text?.Trim();
         if (message.Chat.Id != adminChatId 
-            || !(text.Equals("/unban", StringComparison.InvariantCultureIgnoreCase) 
-                 || text.StartsWith("/unban@", StringComparison.InvariantCultureIgnoreCase)) 
+            || !CommandHelper.IsCommand(text, "unban")
             || message.ReplyToMessage == null)
         {
             return false;

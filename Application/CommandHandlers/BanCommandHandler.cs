@@ -1,4 +1,5 @@
-﻿using EdgarBot.Application.Interfaces;
+﻿using EdgarBot.Application.Helpers;
+using EdgarBot.Application.Interfaces;
 using Telegram.Bot.Types;
 
 namespace EdgarBot.Application.CommandHandlers;
@@ -7,10 +8,9 @@ public class BanCommandHandler(IBanListStore banListStore, ISendMessageService s
 {
     public async Task<bool> TryHandleAsync(Message message, CancellationToken cancellationToken)
     {
-        var text = message.Text?.Trim();
+        var text = message.Text;
         if (message.Chat.Id != adminChatId 
-            || !(text.Equals("/ban", StringComparison.InvariantCultureIgnoreCase) 
-                 || text.StartsWith("/ban@", StringComparison.InvariantCultureIgnoreCase)) 
+            || !CommandHelper.IsCommand(text, "ban")
             || message.ReplyToMessage == null)
         {
             return false;
