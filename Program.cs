@@ -49,6 +49,7 @@ var builder = Host.CreateDefaultBuilder(args)
             return new ForwardingService(sender, store, options.AdminChatId);
         });
         services.AddSingleton<IAdminReplyHandler, AdminReplyHandler>();
+
         services.AddSingleton<ICommandHandler>(sp =>
             new BanCommandHandler(
                 sp.GetRequiredService<IBanListStore>(),
@@ -59,6 +60,14 @@ var builder = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<ICommandHandler>(sp =>
             new UnbanCommandHandler(
+                sp.GetRequiredService<IBanListStore>(),
+                sp.GetRequiredService<ISendMessageService>(),
+                sp.GetRequiredService<IMappingStore>(),
+                sp.GetRequiredService<IOptions<TelegramOptions>>().Value.AdminChatId
+            ));
+
+        services.AddSingleton<ICommandHandler>(sp =>
+            new BanListCommandHandler(
                 sp.GetRequiredService<IBanListStore>(),
                 sp.GetRequiredService<ISendMessageService>(),
                 sp.GetRequiredService<IMappingStore>(),
