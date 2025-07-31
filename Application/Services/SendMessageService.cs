@@ -1,4 +1,5 @@
 ﻿using EdgarBot.Application.Interfaces;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EdgarBot.Application.Services;
 
@@ -14,5 +15,10 @@ public class SendMessageService(IMessageSender messageSender) : ISendMessageServ
     public Task SendMessageAsync(long chatId, string text, CancellationToken cancellationToken)
     {
         return messageSender.SendTextMessageAsync(chatId, text, cancellationToken);
+    }
+
+    public Task SendMessageAsync(long chatId, string text, ReplyMarkup? replyMarkup, CancellationToken cancellationToken)
+    {
+        return messageSender.SendTextMessageAsync(chatId, text, replyMarkup, cancellationToken);
     }
 }
