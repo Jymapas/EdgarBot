@@ -10,10 +10,9 @@ public class BanListCommandHandler(IBanListStore banListStore, ISendMessageServi
 {
     public async Task<bool> TryHandleAsync(Message message, CancellationToken cancellationToken)
     {
-        var text = message.Text?.Trim();
+        var text = message.Text;
         if (message.Chat.Id != adminChatId
-            || !CommandHelper.IsCommand(text, "banlist")
-            || message.ReplyToMessage == null)
+            || !CommandHelper.IsCommand(text, "banlist"))
         {
             return false;
         }
