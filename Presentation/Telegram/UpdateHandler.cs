@@ -1,4 +1,5 @@
 ﻿using EdgarBot.Application.Interfaces;
+using Microsoft.Extensions.Options;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -14,14 +15,33 @@ public class UpdateHandler(
 {
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken = default)
     {
+        if (update.Type == UpdateType.CallbackQuery && update.CallbackQuery != null)
+        {
+            var callback = update.CallbackQuery.Data;
+            if (!callback.StartsWith("unban:"))
+            {
+                return;
+            }
+
+            var userIdAsString = callback.Substring("unban:".Length);
+            if (!long.TryParse(userIdAsString, out var userId))
+            {
+                return;
+            }
+
+            banListStore.Unban(userId);
+            await sendMessageService.SendMessageAsync(adminChatId, $"Пользователь {userIdAsString} был разбанен.", cancellationToken);
+            return;
+        }
+
         if (update.Type != UpdateType.Message || update.Message == null)
         {
             return;
         }
-        
+
         var message = update.Message;
         var user = message.From;
-        
+
         if (!string.IsNullOrWhiteSpace(message.Text) && message.Text.StartsWith('/'))
         {
             foreach (var handler in commandHandlers)
