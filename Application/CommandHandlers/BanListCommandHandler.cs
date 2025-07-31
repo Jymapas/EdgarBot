@@ -2,6 +2,7 @@
 using EdgarBot.Application.Helpers;
 using EdgarBot.Application.Interfaces;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EdgarBot.Application.CommandHandlers;
 
@@ -10,13 +11,13 @@ public class BanListCommandHandler(IBanListStore banListStore, ISendMessageServi
     public async Task<bool> TryHandleAsync(Message message, CancellationToken cancellationToken)
     {
         var text = message.Text?.Trim();
-        if (message.Chat.Id != adminChatId 
+        if (message.Chat.Id != adminChatId
             || !CommandHelper.IsCommand(text, "banlist")
             || message.ReplyToMessage == null)
         {
             return false;
         }
-        
+
         var bannedUsers = banListStore.GetBannedUsers();
 
         if (!bannedUsers.Any())
@@ -30,9 +31,12 @@ public class BanListCommandHandler(IBanListStore banListStore, ISendMessageServi
         {
             sb.AppendLine($"{user.Name} (`{user.UserId}`)");
         }
-        
-        await sendMessageService.SendMessageAsync(adminChatId, sb.ToString(), cancellationToken);
-        
+
+        var buttons = bannedUsers.Select(user => InlineKeyboardButton.WithCallbackData($"Разбанить {user.Name}", $"unban:{user.UserId}"));
+        var keyboard = new InlineKeyboardMarkup(buttons);
+
+        await sendMessageService.SendMessageAsync(adminChatId, sb.ToString(), keyboard, cancellationToken);
+
         return true;
     }
 }
