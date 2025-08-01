@@ -27,7 +27,7 @@ public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSende
             replyMarkup: replyMarkup,
             cancellationToken: cancellationToken
         );
-        
+
         return msg.MessageId;
     }
 

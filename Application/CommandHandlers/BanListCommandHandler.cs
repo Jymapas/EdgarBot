@@ -36,7 +36,7 @@ public class BanListCommandHandler(IBanListStore banListStore, ISendMessageServi
             {
                 InlineKeyboardButton.WithCallbackData($"Разбанить {user.Name}", $"unban:{user.UserId}")
             });
-                
+
         var keyboard = new InlineKeyboardMarkup(buttons);
 
         await sendMessageService.SendMessageAsync(adminChatId, sb.ToString(), keyboard, cancellationToken);

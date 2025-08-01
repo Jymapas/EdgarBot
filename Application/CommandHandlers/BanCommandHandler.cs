@@ -9,7 +9,7 @@ public class BanCommandHandler(IBanListStore banListStore, ISendMessageService s
     public async Task<bool> TryHandleAsync(Message message, CancellationToken cancellationToken)
     {
         var text = message.Text;
-        if (message.Chat.Id != adminChatId 
+        if (message.Chat.Id != adminChatId
             || !CommandHelper.IsCommand(text, "ban")
             || message.ReplyToMessage == null)
         {
