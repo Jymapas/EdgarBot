@@ -1,20 +1,32 @@
 ﻿using EdgarBot.Application.Interfaces;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EdgarBot.Infrastructure.Telegram;
 
 public class TelegramMessageSender(ITelegramBotClient botClient) : IMessageSender
 {
-    public async Task<int> SendTextMessageAsync(long chatId, string text, ReplyParameters? replyParameters = null, CancellationToken cancellationToken = default)
+    public async Task<int> SendTextMessageAsync(long chatId, string text, CancellationToken cancellationToken = default)
     {
         var msg = await botClient.SendMessage(
             chatId,
             text,
-            replyParameters: replyParameters,
-            parseMode: ParseMode.Markdown,
+            ParseMode.Markdown,
             cancellationToken: cancellationToken);
+
+        return msg.MessageId;
+    }
+
+    public async Task<int> SendTextMessageAsync(long chatId, string text, ReplyMarkup? replyMarkup = null, CancellationToken cancellationToken = default)
+    {
+        var msg = await botClient.SendMessage(
+            chatId,
+            text,
+            ParseMode.Markdown,
+            replyMarkup: replyMarkup,
+            cancellationToken: cancellationToken
+        );
 
         return msg.MessageId;
     }

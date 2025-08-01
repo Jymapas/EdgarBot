@@ -1,34 +1,80 @@
 ﻿using EdgarBot.Application.Interfaces;
+using Microsoft.Extensions.Options;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace EdgarBot.Presentation.Telegram;
 
-public class UpdateHandler(IForwardingService forwardingService, IAdminReplyHandler adminReplyHandler, long adminChatId)
+public class UpdateHandler(
+    IEnumerable<ICommandHandler> commandHandlers,
+    IForwardingService forwardingService,
+    IAdminReplyHandler adminReplyHandler,
+    IBanListStore banListStore,
+    ISendMessageService sendMessageService,
+    long adminChatId)
 {
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken = default)
     {
+        if (update.Type == UpdateType.CallbackQuery && update.CallbackQuery != null)
+        {
+            var callback = update.CallbackQuery.Data;
+            if (!callback.StartsWith("unban:"))
+            {
+                return;
+            }
+
+            var userIdAsString = callback.Substring("unban:".Length);
+            if (!long.TryParse(userIdAsString, out var userId))
+            {
+                return;
+            }
+
+            banListStore.Unban(userId);
+            await sendMessageService.SendMessageAsync(adminChatId, $"Пользователь {userIdAsString} был разбанен.", cancellationToken);
+            return;
+        }
+
         if (update.Type != UpdateType.Message || update.Message == null)
         {
             return;
         }
 
-        var msg = update.Message;
+        var message = update.Message;
+        var user = message.From;
 
-        if (msg.Chat.Type == ChatType.Private)
+        if (!string.IsNullOrWhiteSpace(message.Text) && message.Text.StartsWith('/'))
         {
-            if (msg.From?.IsBot == true)
+            foreach (var handler in commandHandlers)
+            {
+                if (await handler.TryHandleAsync(message, cancellationToken))
+                {
+                    return;
+                }
+            }
+        }
+
+        if (message.Chat.Type == ChatType.Private)
+        {
+            if (user.IsBot)
             {
                 return;
             }
 
-            await forwardingService.HandleUserMessageAsync(msg, cancellationToken);
+            if (banListStore.IsBanned(user.Id))
+            {
+                await sendMessageService.SendBannedInfoAsync(user.Id, cancellationToken);
+                return;
+            }
+
+            await forwardingService.HandleUserMessageAsync(message, cancellationToken);
             return;
         }
 
-        if (msg.Chat.Id == adminChatId && msg.ReplyToMessage != null)
+        var chatId = message.Chat.Id;
+
+        if (chatId == adminChatId && message.ReplyToMessage != null)
         {
-            await adminReplyHandler.HandleAdminReplyAsync(msg, cancellationToken);
+            await adminReplyHandler.HandleAdminReplyAsync(message, cancellationToken);
         }
     }
 }

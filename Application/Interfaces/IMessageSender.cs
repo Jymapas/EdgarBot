@@ -1,4 +1,4 @@
-using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EdgarBot.Application.Interfaces;
 
@@ -7,7 +7,12 @@ public interface IMessageSender
     Task<int> SendTextMessageAsync(
         long chatId,
         string text,
-        ReplyParameters? replyParameters = null,
+        CancellationToken cancellationToken = default);
+
+    Task<int> SendTextMessageAsync(
+        long chatId,
+        string text,
+        ReplyMarkup? replyMarkup = null,
         CancellationToken cancellationToken = default);
 
     Task<int> CopyMessageAsync(
